@@ -19,8 +19,9 @@
 */
 
 #include "Tracking.h"
-#include<ros/ros.h>
+#include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
+#include <ORB_SLAM/Keyframe_msg.h>
 
 #include<opencv2/opencv.hpp>
 
@@ -36,6 +37,8 @@
 #include<iostream>
 #include<fstream>
 
+#include <sensor_msgs/image_encodings.h>
+
 
 using namespace std;
 
@@ -43,7 +46,7 @@ namespace ORB_SLAM
 {
 
 
-Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPublisher *pMapPublisher, Map *pMap, string strSettingPath):
+Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPublisher *pMapPublisher, Map *pMap, string strSettingPath, ros::NodeHandle& node):
     mState(NO_IMAGES_YET), mpORBVocabulary(pVoc), mpFramePublisher(pFramePublisher), mpMapPublisher(pMapPublisher), mpMap(pMap),
     mnLastRelocFrameId(0), mbPublisherStopped(false), mbReseting(false), mbForceRelocalisation(false), mbMotionModel(false)
 {
@@ -61,6 +64,8 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
     K.at<float>(0,2) = cx;
     K.at<float>(1,2) = cy;
     K.copyTo(mK);
+
+    keyframe_pub = node.advertise<Keyframe_msg>("/orb_slam_keyframes",1);
 
     cv::Mat DistCoef(4,1,CV_32F);
     DistCoef.at<float>(0) = fSettings["Camera.k1"];
@@ -103,7 +108,7 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
     int nFeatures = fSettings["ORBextractor.nFeatures"];
     float fScaleFactor = fSettings["ORBextractor.scaleFactor"];
     int nLevels = fSettings["ORBextractor.nLevels"];
-    int fastTh = fSettings["ORBextractor.fastTh"];    
+    int fastTh = fSettings["ORBextractor.fastTh"];
     int Score = fSettings["ORBextractor.nScoreType"];
 
     assert(Score==1 || Score==0);
@@ -123,7 +128,7 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
 
     // ORB extractor for initialization
     // Initialization uses only points from the finest scale level
-    mpIniORBextractor = new ORBextractor(nFeatures*2,1.2,8,Score,fastTh);  
+    mpIniORBextractor = new ORBextractor(nFeatures*2,1.2,8,Score,fastTh);
 
     int nMotion = fSettings["UseMotionModel"];
     mbMotionModel = nMotion;
@@ -295,7 +300,7 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         }
 
         mLastFrame = Frame(mCurrentFrame);
-     }       
+     }
 
     // Update drawer
     mpFramePublisher->Update(this);
@@ -346,7 +351,7 @@ void Tracking::Initialize()
         fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
         mState = NOT_INITIALIZED;
         return;
-    }    
+    }
 
     // Find correspondences
     ORBmatcher matcher(0.9,true);
@@ -357,7 +362,7 @@ void Tracking::Initialize()
     {
         mState = NOT_INITIALIZED;
         return;
-    }  
+    }
 
     cv::Mat Rcw; // Current Camera Rotation
     cv::Mat tcw; // Current Camera Translation
@@ -371,7 +376,7 @@ void Tracking::Initialize()
             {
                 mvIniMatches[i]=-1;
                 nmatches--;
-            }           
+            }
         }
 
         CreateInitialMap(Rcw,tcw);
@@ -666,9 +671,30 @@ void Tracking::CreateNewKeyFrame()
 {
     KeyFrame* pKF = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
 
+
     mpLocalMapper->InsertKeyFrame(pKF);
 
+    Keyframe_msg msg;
+    cv_bridge::CvImage img_bridge;
+    //sensor_msgs::Image img_msg; 
+    msg.frame_id = pKF->mnId;
+    msg.header.stamp = ros::Time::now();
+    cv::Mat pose = pKF->GetPoseInverse();
+    for(int i=0;i<pose.rows;i++){
+      for(int j=0;j<pose.cols;j++){
+        msg.pose.push_back(pose.at<float>(i,j));
+      }
+    }
+    std_msgs::Header header; // empty header
+    header.stamp = ros::Time::now(); // time
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, pKF->GetImage());
+    img_bridge.toImageMsg(msg.image);
+    keyframe_pub.publish(msg);
+
+
     mnLastKeyFrameId = mCurrentFrame.mnId;
+
+
     mpLastKeyFrame = pKF;
 }
 
@@ -704,14 +730,14 @@ void Tracking::SearchReferencePointsInFrustum()
         if(pMP->mnLastFrameSeen == mCurrentFrame.mnId)
             continue;
         if(pMP->isBad())
-            continue;        
+            continue;
         // Project (this fills MapPoint variables for matching)
         if(mCurrentFrame.isInFrustum(pMP,0.5))
         {
             pMP->IncreaseVisible();
             nToMatch++;
         }
-    }    
+    }
 
 
     if(nToMatch>0)
@@ -726,7 +752,7 @@ void Tracking::SearchReferencePointsInFrustum()
 }
 
 void Tracking::UpdateReference()
-{    
+{
     // This is for visualization
     mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
@@ -897,7 +923,7 @@ bool Tracking::Relocalisation()
                 vpPnPsolvers[i] = pSolver;
                 nCandidates++;
             }
-        }        
+        }
     }
 
     // Alternatively perform some iterations of P4P RANSAC
@@ -989,7 +1015,7 @@ bool Tracking::Relocalisation()
 
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if(nGood>=50)
-                {                    
+                {
                     bMatch = true;
                     break;
                 }

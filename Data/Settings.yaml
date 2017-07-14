@@ -2,11 +2,11 @@
 
 # Camera Parameters. Adjust them!
 
-# Camera calibration parameters (OpenCV) 
-Camera.fx: 609.2855
-Camera.fy: 609.3422 
-Camera.cx: 351.4274
-Camera.cy: 237.7324
+# Camera calibration parameters (OpenCV)
+Camera.fx: 722.552
+Camera.fy: 721.572
+Camera.cx: 261.2415
+Camera.cy: 238.5543
 
 # Camera distortion paremeters (OpenCV) --
 Camera.k1: -0.3492
@@ -14,8 +14,8 @@ Camera.k2: 0.1363
 Camera.p1: 0.0
 Camera.p2: 0.0
 
-# Camera frames per second 
-Camera.fps: 30.0
+# Camera frames per second
+Camera.fps: 80
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -26,16 +26,16 @@ Camera.RGB: 1
 # ORB Extractor: Number of features per image
 ORBextractor.nFeatures: 1000
 
-# ORB Extractor: Scale factor between levels in the scale pyramid 	
+# ORB Extractor: Scale factor between levels in the scale pyramid
 ORBextractor.scaleFactor: 1.2
 
-# ORB Extractor: Number of levels in the scale pyramid	
+# ORB Extractor: Number of levels in the scale pyramid
 ORBextractor.nLevels: 8
 
-# ORB Extractor: Fast threshold (lower less restrictive)			
+# ORB Extractor: Fast threshold (lower less restrictive)
 ORBextractor.fastTh: 20
 
-# ORB Extractor: Score to sort features. 0 -> Harris Score, 1 -> FAST Score			
+# ORB Extractor: Score to sort features. 0 -> Harris Score, 1 -> FAST Score
 ORBextractor.nScoreType: 1
 
 

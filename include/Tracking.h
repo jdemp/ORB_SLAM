@@ -36,6 +36,7 @@
 #include"ORBextractor.h"
 #include "Initializer.h"
 #include "MapPublisher.h"
+#include <ros/ros.h>
 
 #include<tf/transform_broadcaster.h>
 
@@ -49,10 +50,10 @@ class LocalMapping;
 class LoopClosing;
 
 class Tracking
-{  
+{
 
 public:
-    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, string strSettingPath);
+    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, string strSettingPath, ros::NodeHandle& node);
 
     enum eTrackingState{
         SYSTEM_NOT_READY=-1,
@@ -62,7 +63,7 @@ public:
         WORKING=3,
         LOST=4
     };
-
+    ros::Publisher keyframe_pub;
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
     void SetKeyFrameDatabase(KeyFrameDatabase* pKFDB);
@@ -73,7 +74,7 @@ public:
     void ForceRelocalisation();
 
     eTrackingState mState;
-    eTrackingState mLastProcessedState;    
+    eTrackingState mLastProcessedState;
 
     // Current Frame
     Frame mCurrentFrame;
@@ -102,7 +103,7 @@ protected:
     bool TrackWithMotionModel();
 
     bool RelocalisationRequested();
-    bool Relocalisation();    
+    bool Relocalisation();
 
     void UpdateReference();
     void UpdateReferencePoints();

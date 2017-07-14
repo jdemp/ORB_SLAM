@@ -29,7 +29,7 @@
 
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
 
-#include<stdint-gcc.h>
+#include <stdint-gcc.h>
 
 
 using namespace std;
@@ -61,7 +61,7 @@ int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoint
         if(pMP->isBad())
             continue;
 
-        const int &nPredictedLevel = pMP->mnTrackScaleLevel;    
+        const int &nPredictedLevel = pMP->mnTrackScaleLevel;
 
         // The size of the window will depend on the viewing direction
         float r = RadiusByViewingCos(pMP->mTrackViewCos);
@@ -1119,7 +1119,7 @@ int ORBmatcher::Fuse(KeyFrame *pKF, vector<MapPoint *> &vpMapPoints, float th)
             if(pMPinKF)
             {
                 if(!pMPinKF->isBad())
-                    pMP->Replace(pMPinKF);                
+                    pMP->Replace(pMPinKF);
             }
             else
             {
@@ -1592,7 +1592,7 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, 
                 }
             }
         }
-    }  
+    }
 
    //Apply rotation consistency
    if(mbCheckOrientation)

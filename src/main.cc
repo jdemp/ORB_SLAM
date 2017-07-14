@@ -45,6 +45,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "ORB_SLAM");
+    ros::NodeHandle n;
     ros::start();
 
     cout << endl << "ORB-SLAM Copyright (C) 2014 Raul Mur-Artal" << endl <<
@@ -87,13 +88,13 @@ int main(int argc, char **argv)
     ORB_SLAM::ORBVocabulary Vocabulary;
     Vocabulary.load(fsVoc);
     */
-    
-    // New version to load vocabulary from text file "Data/ORBvoc.txt". 
+
+    // New version to load vocabulary from text file "Data/ORBvoc.txt".
     // If you have an own .yml vocabulary, use the function
     // saveToTextFile in Thirdparty/DBoW2/DBoW2/TemplatedVocabulary.h
     string strVocFile = ros::package::getPath("ORB_SLAM")+"/"+argv[1];
     cout << endl << "Loading ORB Vocabulary. This could take a while." << endl;
-    
+
     ORB_SLAM::ORBVocabulary Vocabulary;
     bool bVocLoad = Vocabulary.loadFromTextFile(strVocFile);
 
@@ -119,7 +120,7 @@ int main(int argc, char **argv)
     ORB_SLAM::MapPublisher MapPub(&World);
 
     //Initialize the Tracking Thread and launch
-    ORB_SLAM::Tracking Tracker(&Vocabulary, &FramePub, &MapPub, &World, strSettingsFile);
+    ORB_SLAM::Tracking Tracker(&Vocabulary, &FramePub, &MapPub, &World, strSettingsFile, n);
     boost::thread trackingThread(&ORB_SLAM::Tracking::Run,&Tracker);
 
     Tracker.SetKeyFrameDatabase(&Database);
@@ -129,14 +130,15 @@ int main(int argc, char **argv)
     boost::thread localMappingThread(&ORB_SLAM::LocalMapping::Run,&LocalMapper);
 
     //Initialize the Loop Closing Thread and launch
+
     ORB_SLAM::LoopClosing LoopCloser(&World, &Database, &Vocabulary);
     boost::thread loopClosingThread(&ORB_SLAM::LoopClosing::Run, &LoopCloser);
-
     //Set pointers between threads
     Tracker.SetLocalMapper(&LocalMapper);
     Tracker.SetLoopClosing(&LoopCloser);
 
     LocalMapper.SetTracker(&Tracker);
+
     LocalMapper.SetLoopCloser(&LoopCloser);
 
     LoopCloser.SetTracker(&Tracker);
