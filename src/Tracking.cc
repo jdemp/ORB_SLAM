@@ -36,8 +36,10 @@
 
 #include<iostream>
 #include<fstream>
+#include <vector>
 
 #include <sensor_msgs/image_encodings.h>
+#include <geometry_msgs/Point.h>
 
 
 using namespace std;
@@ -676,15 +678,39 @@ void Tracking::CreateNewKeyFrame()
 
     Keyframe_msg msg;
     cv_bridge::CvImage img_bridge;
-    //sensor_msgs::Image img_msg; 
+    //sensor_msgs::Image img_msg;
     msg.frame_id = pKF->mnId;
     msg.header.stamp = ros::Time::now();
     cv::Mat pose = pKF->GetPoseInverse();
-    for(int i=0;i<pose.rows;i++){
-      for(int j=0;j<pose.cols;j++){
+    cv::Mat projection = pKF->GetProjectionMatrix();
+    for(int i=0;i<3;i++){
+      for(int j=0;j<4;j++){
         msg.pose.push_back(pose.at<float>(i,j));
+        msg.projection.push_back(projection.at<float>(i,j));
       }
     }
+
+    cv::Mat descriptors = pKF->GetDescriptors().clone();
+    //std::cout << "Number of descriptors" << descriptors.rows << "\n";
+    for (int i=0;i<descriptors.rows;i++){
+      for(int j=0;j<descriptors.cols;j++){
+        msg.descriptors.push_back(descriptors.at<unsigned char>(i,j));
+      }
+    }
+    msg.number_descriptors = descriptors.rows;
+    msg.length_descriptors = descriptors.cols;
+    //std::cout << "descriptors added " << msg.descriptors.size() <<"\n";
+
+
+    std::vector<cv::KeyPoint> kpts = pKF->GetKeyPoints();
+    for(int i=0;i<kpts.size();i++)
+    {
+      geometry_msgs::Point p;
+      p.x = kpts[i].pt.x;
+      p.y = kpts[i].pt.y;
+      msg.keypoints.push_back(p);
+    }
+
     std_msgs::Header header; // empty header
     header.stamp = ros::Time::now(); // time
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, pKF->GetImage());
