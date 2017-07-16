@@ -1,0 +1,10 @@
+Header header
+uint32 frame_id
+float32[] pose
+float32[] projection
+int8[] descriptors
+int16 number_descriptors
+int16 length_descriptors
+geometry_msgs/Point[] keypoints
+geometry_msgs/Point[] mappoints
+sensor_msgs/Image image

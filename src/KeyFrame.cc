@@ -50,7 +50,7 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
             mGrid[i][j] = F.mGrid[i][j];
     }
 
-    SetPose(F.mTcw);    
+    SetPose(F.mTcw);
 }
 
 void KeyFrame::ComputeBoW()
@@ -156,7 +156,7 @@ void KeyFrame::UpdateBestCovisibles()
     }
 
     mvpOrderedConnectedKeyFrames = vector<KeyFrame*>(lKFs.begin(),lKFs.end());
-    mvOrderedWeights = vector<int>(lWs.begin(), lWs.end());    
+    mvOrderedWeights = vector<int>(lWs.begin(), lWs.end());
 }
 
 set<KeyFrame*> KeyFrame::GetConnectedKeyFrames()
@@ -248,6 +248,22 @@ set<MapPoint*> KeyFrame::GetMapPoints()
             s.insert(pMP);
     }
     return s;
+}
+
+vector<MapPoint*> KeyFrame::getMapPoints()
+{
+
+  boost::mutex::scoped_lock lock(mMutexFeatures);
+  vector<MapPoint*> s;
+  for(size_t i=0, iend=mvpMapPoints.size(); i<iend; i++)
+  {
+      if(!mvpMapPoints[i])
+          continue;
+      MapPoint* pMP = mvpMapPoints[i];
+      if(!pMP->isBad())
+          s.push_back(pMP);
+  }
+  return s;
 }
 
 int KeyFrame::TrackedMapPoints()
@@ -495,7 +511,7 @@ void KeyFrame::SetErase()
 
 
 void KeyFrame::SetBadFlag()
-{   
+{
     {
         boost::mutex::scoped_lock lock(mMutexConnections);
         if(mnId==0)

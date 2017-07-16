@@ -93,6 +93,7 @@ public:
     void EraseMapPointMatch(MapPoint* pMP);
     void ReplaceMapPointMatch(const size_t &idx, MapPoint* pMP);
     std::set<MapPoint*> GetMapPoints();
+    std::vector<MapPoint*> getMapPoints();
     std::vector<MapPoint*> GetMapPointMatches();
     int TrackedMapPoints();
     MapPoint* GetMapPoint(const size_t &idx);

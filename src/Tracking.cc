@@ -37,6 +37,7 @@
 #include<iostream>
 #include<fstream>
 #include <vector>
+#include <set>
 
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Point.h>
@@ -709,6 +710,18 @@ void Tracking::CreateNewKeyFrame()
       p.x = kpts[i].pt.x;
       p.y = kpts[i].pt.y;
       msg.keypoints.push_back(p);
+    }
+
+    std::vector<MapPoint*> mps = pKF->getMapPoints();
+    for(int i=0;i<mps.size();i++)
+    {
+        geometry_msgs::Point p;
+        cv::Mat pos = mps[i]->GetWorldPos();
+        p.x=pos.at<float>(0);
+        p.y=pos.at<float>(1);
+        p.z=pos.at<float>(2);
+        //TODO: need to add descriptors to mappoints 
+        msg.mappoints.push_back(p);
     }
 
     std_msgs::Header header; // empty header
