@@ -713,6 +713,7 @@ void Tracking::CreateNewKeyFrame()
     }
 
     std::vector<MapPoint*> mps = pKF->getMapPoints();
+    std::cout << "there are " << mps.size() << " mps to track\n";
     for(int i=0;i<mps.size();i++)
     {
         geometry_msgs::Point p;
@@ -720,7 +721,9 @@ void Tracking::CreateNewKeyFrame()
         p.x=pos.at<float>(0);
         p.y=pos.at<float>(1);
         p.z=pos.at<float>(2);
-        //TODO: need to add descriptors to mappoints 
+        long unsigned int id = mps[i]->mnId;
+        msg.mappoint_id.push_back(id);
+
         msg.mappoints.push_back(p);
     }
 

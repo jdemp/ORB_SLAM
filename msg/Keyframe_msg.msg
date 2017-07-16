@@ -7,4 +7,5 @@ int16 number_descriptors
 int16 length_descriptors
 geometry_msgs/Point[] keypoints
 geometry_msgs/Point[] mappoints
+uint64[] mappoint_id
 sensor_msgs/Image image
