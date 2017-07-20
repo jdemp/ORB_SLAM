@@ -22,6 +22,7 @@
 #include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
 #include <ORB_SLAM/Keyframe_msg.h>
+#include <ORB_SLAM/Landmark_msg.h>
 
 #include<opencv2/opencv.hpp>
 
@@ -716,15 +717,19 @@ void Tracking::CreateNewKeyFrame()
     std::cout << "there are " << mps.size() << " mps to track\n";
     for(int i=0;i<mps.size();i++)
     {
-        geometry_msgs::Point p;
+        Landmark_msg lm;
         cv::Mat pos = mps[i]->GetWorldPos();
-        p.x=pos.at<float>(0);
-        p.y=pos.at<float>(1);
-        p.z=pos.at<float>(2);
-        long unsigned int id = mps[i]->mnId;
-        msg.mappoint_id.push_back(id);
+        lm.pose.x=pos.at<float>(0);
+        lm.pose.y=pos.at<float>(1);
+        lm.pose.z=pos.at<float>(2);
+        lm.id = mps[i]->mnId;
+        cv::Mat d = mps[i]->GetDescriptor();
+        for (int i =0;i<32;i++)
+        {
+          lm.descriptor.push_back(d.at<unsigned char>(i));
+        }
 
-        msg.mappoints.push_back(p);
+        msg.landmarks.push_back(lm);
     }
 
     std_msgs::Header header; // empty header
