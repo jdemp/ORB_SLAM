@@ -23,6 +23,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <ORB_SLAM/Keyframe_msg.h>
 #include <ORB_SLAM/Landmark_msg.h>
+#include <ORB_SLAM/BowWord.h>
 
 #include<opencv2/opencv.hpp>
 
@@ -42,6 +43,8 @@
 
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Point.h>
+
+#include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 
 
 using namespace std;
@@ -677,7 +680,7 @@ void Tracking::CreateNewKeyFrame()
 
 
     mpLocalMapper->InsertKeyFrame(pKF);
-
+/*
     Keyframe_msg msg;
     cv_bridge::CvImage img_bridge;
     //sensor_msgs::Image img_msg;
@@ -732,12 +735,22 @@ void Tracking::CreateNewKeyFrame()
         msg.landmarks.push_back(lm);
     }
 
+  DBoW2::BowVector bow = pKF->GetBowVector();
+  for(DBoW2::BowVector::const_iterator vit= bow.begin(), vend=bow.end(); vit!=vend; vit++)
+    {
+      BowWord bw;
+      bw.word = vit->first;
+      bw.value = vit->second;
+      msg.bow_vector.push_back(bw);
+    }
+
+    std::cout << "Number of words added " << msg.bow_vector.size()<<"\n";
     std_msgs::Header header; // empty header
     header.stamp = ros::Time::now(); // time
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, pKF->GetImage());
     img_bridge.toImageMsg(msg.image);
     keyframe_pub.publish(msg);
-
+*/
 
     mnLastKeyFrameId = mCurrentFrame.mnId;
 

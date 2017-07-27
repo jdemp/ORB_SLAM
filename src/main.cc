@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     ORB_SLAM::KeyFrameDatabase Database(Vocabulary);
 
     //Create the map
-    ORB_SLAM::Map World;
+    ORB_SLAM::Map World(n);
 
     FramePub.SetMap(&World);
 

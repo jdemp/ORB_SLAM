@@ -24,6 +24,7 @@
 #include "MapPoint.h"
 #include "KeyFrame.h"
 #include<set>
+#include <ros/ros.h>
 
 #include<boost/thread.hpp>
 
@@ -38,8 +39,8 @@ class KeyFrame;
 class Map
 {
 public:
-    Map();
-
+    Map(ros::NodeHandle& node);
+    ros::Publisher keyframe_pub;
     void AddKeyFrame(KeyFrame* pKF);
     void AddMapPoint(MapPoint* pMP);
     void EraseMapPoint(MapPoint* pMP);

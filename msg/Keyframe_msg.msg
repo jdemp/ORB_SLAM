@@ -7,4 +7,5 @@ int16 number_descriptors
 int16 length_descriptors
 geometry_msgs/Point[] keypoints
 Landmark_msg[] landmarks
+BowWord[] bow_vector
 sensor_msgs/Image image
