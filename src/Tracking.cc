@@ -40,6 +40,7 @@
 #include<fstream>
 #include <vector>
 #include <set>
+#include <string>
 
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Point.h>
