@@ -100,9 +100,15 @@ void Map::AddKeyFrame(KeyFrame *pKF)
           lm.descriptor.push_back(d.at<unsigned char>(i));
         }
 
-        msg.landmarks.push_back(lm);
+        int index = mps[i]->GetIndexInKeyFrame(pKF);
+        if(index>=0)
+        {
+          lm.index = index;
+          msg.landmarks.push_back(lm);
+        }
     }
 
+  /*
   DBoW2::BowVector bow = pKF->GetBowVector();
   for(DBoW2::BowVector::const_iterator vit= bow.begin(), vend=bow.end(); vit!=vend; vit++)
     {
@@ -111,8 +117,9 @@ void Map::AddKeyFrame(KeyFrame *pKF)
       bw.value = vit->second;
       msg.bow_vector.push_back(bw);
     }
+    */
 
-    std::cout << "Number of words added " << msg.bow_vector.size()<<"\n";
+    //std::cout << "Number of words added " << msg.bow_vector.size()<<"\n";
     std_msgs::Header header; // empty header
     header.stamp = ros::Time::now(); // time
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO8, pKF->GetImage());

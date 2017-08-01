@@ -152,7 +152,7 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
 }
 
 int Optimizer::PoseOptimization(Frame *pFrame)
-{    
+{
     g2o::SparseOptimizer optimizer;
     g2o::BlockSolverX::LinearSolverType * linearSolver;
 
@@ -259,7 +259,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->computeError();
 
             if(e->chi2()>chi2[it])
-            {                
+            {
                 pFrame->mvbOutlier[idx]=true;
                 e->setLevel(1);
                 nBad++;
@@ -285,7 +285,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 }
 
 void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag)
-{    
+{
     // Local KeyFrames: First Breath Search from Current Keyframe
     list<KeyFrame*> lLocalKeyFrames;
 
@@ -329,7 +329,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag)
             KeyFrame* pKFi = mit->first;
 
             if(pKFi->mnBALocalForKF!=pKF->mnId && pKFi->mnBAFixedForKF!=pKF->mnId)
-            {                
+            {
                 pKFi->mnBAFixedForKF=pKF->mnId;
                 if(!pKFi->isBad())
                     lFixedCameras.push_back(pKFi);
@@ -573,7 +573,7 @@ void Optimizer::OptimizeEssentialGraph(Map* pMap, KeyFrame* pLoopKF, KeyFrame* p
             continue;
         g2o::VertexSim3Expmap* VSim3 = new g2o::VertexSim3Expmap();
 
-        int nIDi = pKF->mnId;      
+        int nIDi = pKF->mnId;
 
         if(CorrectedSim3.count(pKF))
         {
